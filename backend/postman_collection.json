@@ -1,0 +1,448 @@
+{
+  "info": {
+    "_postman_id": "b3e94a82-f87c-482d-8f24-9dfc8c11aa50",
+    "name": "OL Software - Backend Comerciantes API",
+    "description": "Colección completa de endpoints para la prueba técnica Spring Boot Fullstack.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "tokenAdmin",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tokenAuxiliar",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Seguridad & Autenticación",
+      "item": [
+        {
+          "name": "Login Administrador",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.exito && jsonData.datos && jsonData.datos.token) {",
+                  "    pm.collectionVariables.set('tokenAdmin', jsonData.datos.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correoElectronico\": \"admin@olsoftware.com\",\n  \"contrasena\": \"Admin123*\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login Auxiliar de Registro",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.exito && jsonData.datos && jsonData.datos.token) {",
+                  "    pm.collectionVariables.set('tokenAuxiliar', jsonData.datos.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correoElectronico\": \"auxiliar@olsoftware.com\",\n  \"contrasena\": \"Auxiliar123*\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Listas de Valores (Caché)",
+      "item": [
+        {
+          "name": "Obtener Departamentos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/departamentos",
+              "host": ["{{baseUrl}}"],
+              "path": ["departamentos"]
+            }
+          }
+        },
+        {
+          "name": "Obtener Municipios por ID Departamento",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/departamentos/1/municipios",
+              "host": ["{{baseUrl}}"],
+              "path": ["departamentos", "1", "municipios"]
+            }
+          }
+        },
+        {
+          "name": "Obtener Municipios por Nombre Departamento",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/municipios?departamento=Antioquia",
+              "host": ["{{baseUrl}}"],
+              "path": ["municipios"],
+              "query": [
+                {
+                  "key": "departamento",
+                  "value": "Antioquia"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. CRUD Comerciantes",
+      "item": [
+        {
+          "name": "Consulta Paginada con Filtros",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/comerciantes?pagina=1&registrosPorPagina=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["comerciantes"],
+              "query": [
+                {
+                  "key": "pagina",
+                  "value": "1"
+                },
+                {
+                  "key": "registrosPorPagina",
+                  "value": "5"
+                },
+                {
+                  "key": "nombre",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "municipio",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "estado",
+                  "value": "Activo",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Consultar Comerciante por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/comerciantes/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["comerciantes", "1"]
+            }
+          }
+        },
+        {
+          "name": "Crear Comerciante",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombreRazonSocial\": \"Comercializadora Nueva Era S.A.S.\",\n  \"departamento\": \"Antioquia\",\n  \"municipio\": \"Medellín\",\n  \"telefono\": \"+57 311 234 5678\",\n  \"correoElectronico\": \"contacto@nuevaera.com\",\n  \"fechaRegistro\": \"2024-05-10\",\n  \"estado\": \"Activo\",\n  \"establecimientos\": [\n    {\n      \"nombreEstablecimiento\": \"Sede Centro Nueva Era\",\n      \"ingresos\": 35000000.50,\n      \"numeroEmpleados\": 8\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/comerciantes",
+              "host": ["{{baseUrl}}"],
+              "path": ["comerciantes"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar Comerciante",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombreRazonSocial\": \"Comercializadora Nueva Era Renovada S.A.S.\",\n  \"departamento\": \"Antioquia\",\n  \"municipio\": \"Medellín\",\n  \"telefono\": \"+57 311 999 8877\",\n  \"correoElectronico\": \"gerencia@nuevaera.com\",\n  \"fechaRegistro\": \"2024-05-10\",\n  \"estado\": \"Activo\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/comerciantes/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["comerciantes", "1"]
+            }
+          }
+        },
+        {
+          "name": "Modificar Estado Comerciante (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nuevoEstado\": \"Inactivo\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/comerciantes/1/estado",
+              "host": ["{{baseUrl}}"],
+              "path": ["comerciantes", "1", "estado"]
+            }
+          }
+        },
+        {
+          "name": "Eliminar Comerciante (Solo Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/comerciantes/10",
+              "host": ["{{baseUrl}}"],
+              "path": ["comerciantes", "10"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. CRUD Establecimientos",
+      "item": [
+        {
+          "name": "Listar por Comerciante",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/establecimientos/comerciante/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["establecimientos", "comerciante", "1"]
+            }
+          }
+        },
+        {
+          "name": "Crear Establecimiento",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"comercianteId\": 1,\n  \"nombreEstablecimiento\": \"Nuevo Punto Laureles\",\n  \"ingresos\": 42500000.75,\n  \"numeroEmpleados\": 12\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/establecimientos",
+              "host": ["{{baseUrl}}"],
+              "path": ["establecimientos"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar Establecimiento",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombreEstablecimiento\": \"Punto Laureles Ampliado\",\n  \"ingresos\": 55000000.00,\n  \"numeroEmpleados\": 15\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/establecimientos/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["establecimientos", "1"]
+            }
+          }
+        },
+        {
+          "name": "Eliminar Establecimiento",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/establecimientos/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["establecimientos", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Reportes (Solo Administrador)",
+      "item": [
+        {
+          "name": "Descargar Reporte CSV (Pipe)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/comerciantes/reporte/csv",
+              "host": ["{{baseUrl}}"],
+              "path": ["comerciantes", "reporte", "csv"]
+            }
+          }
+        },
+        {
+          "name": "Descargar Ficha Comerciante en PDF",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/comerciantes/1/ficha/pdf",
+              "host": ["{{baseUrl}}"],
+              "path": ["comerciantes", "1", "ficha", "pdf"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

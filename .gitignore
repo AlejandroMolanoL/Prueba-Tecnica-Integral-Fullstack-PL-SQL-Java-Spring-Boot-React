@@ -1,0 +1,21 @@
+# Dependencias y compilados de Node
+node_modules/
+dist/
+*.log
+
+# Java y Maven
+target/
+.tools/
+*.class
+*.jar
+*.war
+.m2/
+
+# IDEs y editores
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# Datos locales
+*.db
