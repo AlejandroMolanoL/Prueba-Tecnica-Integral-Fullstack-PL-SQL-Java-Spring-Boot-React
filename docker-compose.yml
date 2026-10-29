@@ -1,4 +1,34 @@
 services:
+  # ====================================================================
+  # 1. SERVICIO DE BASE DE DATOS: Oracle Database 23ai Free
+  # Inicializa automáticamente tablas, secuencias, triggers, paquetes y semillas
+  # ====================================================================
+  database:
+    image: gvenzl/oracle-free:slim-faststart
+    container_name: comerciantes-database
+    ports:
+      - "1521:1521"
+    environment:
+      - ORACLE_PASSWORD=OraclePassword123*
+      - APP_USER=COMERCIANTE_APP
+      - APP_USER_PASSWORD=Comerciante123*
+    volumes:
+      - ./database/init-scripts:/container-entrypoint-initdb.d:ro
+      - oracle_data:/opt/oracle/oradata
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 25
+      start_period: 30s
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # ====================================================================
+  # 2. SERVICIO BACKEND: Java 21 LTS + Spring Boot 3
+  # Conectado automáticamente a Oracle PDB mediante perfil oracle
+  # ====================================================================
   backend:
     build:
       context: ./backend
@@ -7,6 +37,43 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_PROFILES_ACTIVE=oracle
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@database:1521/FREEPDB1
+      - SPRING_DATASOURCE_USERNAME=COMERCIANTE_APP
+      - SPRING_DATASOURCE_PASSWORD=Comerciante123*
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=oracle.jdbc.OracleDriver
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.OracleDialect
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SERVER_PORT=8080
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - app-network
     restart: unless-stopped
+
+  # ====================================================================
+  # 3. SERVICIO FRONTEND: React 19 + TypeScript + Nginx
+  # Servidor web ligero con proxy inverso transparente hacia el backend
+  # ====================================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: comerciantes-frontend
+    ports:
+      - "5173:80"
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+    restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  oracle_data:
+    driver: local

@@ -43,7 +43,14 @@ Construido con **Java 21 LTS** y **Spring Boot 3.3.5**, siguiendo Arquitectura L
   - Swagger UI interactivo: `http://localhost:8080/swagger-ui.html`
   - OpenAPI Spec: `http://localhost:8080/v3/api-docs`
   - Colección de Postman: `backend/postman_collection.json`
-- **Despliegue Contenerizado:** `Dockerfile` multi-etapa y `docker-compose.yml`.
+### Despliegue Automatizado con Docker (Servicio Completo):
+Levanta de forma automática los 3 servicios orquestados (`database`, `backend` y `frontend`):
+```bash
+docker compose up --build
+```
+- **Frontend:** `http://localhost:5173` o `http://localhost:3000`
+- **Backend API & Swagger:** `http://localhost:8080/swagger-ui.html`
+- **Oracle Database:** `localhost:1521` (PDB: `FREEPDB1`)
 
 ### Credenciales de Prueba Precargadas:
 | Rol | Correo Electrónico | Contraseña | Permisos |
