@@ -15,7 +15,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -35,17 +36,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (StringUtils.hasText(jwt) && tokenProvider.validarToken(jwt)) {
                 String correo = tokenProvider.obtenerCorreoDeToken(jwt);
-                String rol = tokenProvider.obtenerRolDeToken(jwt);
+                String rolRaw = tokenProvider.obtenerRolDeToken(jwt);
 
-                SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + rol);
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        correo,
-                        null,
-                        Collections.singletonList(authority)
-                );
+                if (StringUtils.hasText(rolRaw)) {
+                    String cleanRol = rolRaw.replace("ROLE_", "").trim();
+                    List<SimpleGrantedAuthority> authorities = Arrays.asList(
+                            new SimpleGrantedAuthority("ROLE_" + cleanRol),
+                            new SimpleGrantedAuthority(cleanRol)
+                    );
 
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                            correo,
+                            null,
+                            authorities
+                    );
+
+                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
             }
         } catch (Exception ex) {
             logger.error("No se pudo establecer la autenticación del usuario en el contexto de seguridad", ex);
@@ -57,7 +65,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String obtenerJwtDePeticion(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
+            return bearerToken.substring(7).trim();
         }
         return null;
     }
