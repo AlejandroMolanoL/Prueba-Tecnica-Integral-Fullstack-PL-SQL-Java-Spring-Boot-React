@@ -17,7 +17,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<Usuario | null>(() => authService.getCurrentUser());
   const [token, setToken] = useState<string | null>(() => authService.getToken());
 
-  const login = async (correoElectronico: string, contrasena: string) => {
+  const login = React.useCallback(async (correoElectronico: string, contrasena: string) => {
     const authData = await authService.login(correoElectronico, contrasena);
     setUser({
       nombre: authData.nombre,
@@ -25,28 +25,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       rol: authData.rol,
     });
     setToken(authData.token);
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = React.useCallback(() => {
     authService.logout();
     setUser(null);
     setToken(null);
-  };
+  }, []);
 
   const isAuthenticated = !!token && !!user;
   const isAdmin = user?.rol === 'ADMINISTRADOR';
 
+  const value = React.useMemo(
+    () => ({
+      user,
+      token,
+      isAuthenticated,
+      isAdmin,
+      login,
+      logout,
+    }),
+    [user, token, isAuthenticated, isAdmin, login, logout]
+  );
+
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        token,
-        isAuthenticated,
-        isAdmin,
-        login,
-        logout,
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

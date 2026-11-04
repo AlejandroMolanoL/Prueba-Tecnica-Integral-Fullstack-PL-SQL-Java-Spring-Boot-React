@@ -89,8 +89,8 @@ public class SecurityConfig {
                         // Demás endpoints de comerciantes y establecimientos (Admin y Auxiliar de Registro)
                         .requestMatchers("/api/v1/comerciantes/**").hasAnyRole("ADMINISTRADOR", "AUXILIAR_REGISTRO")
                         .requestMatchers("/api/v1/establecimientos/**").hasAnyRole("ADMINISTRADOR", "AUXILIAR_REGISTRO")
-                        .requestMatchers("/api/v1/departamentos/**").hasAnyRole("ADMINISTRADOR", "AUXILIAR_REGISTRO")
-                        .requestMatchers("/api/v1/municipios/**").hasAnyRole("ADMINISTRADOR", "AUXILIAR_REGISTRO")
+                        .requestMatchers("/api/v1/departamentos", "/api/v1/departamentos/**").hasAnyRole("ADMINISTRADOR", "AUXILIAR_REGISTRO")
+                        .requestMatchers("/api/v1/municipios", "/api/v1/municipios/**").hasAnyRole("ADMINISTRADOR", "AUXILIAR_REGISTRO")
                         
                         // Cualquier otra petición debe estar autenticada
                         .anyRequest().authenticated()

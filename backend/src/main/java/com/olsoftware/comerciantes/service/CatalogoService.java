@@ -41,11 +41,15 @@ public class CatalogoService {
                 .collect(Collectors.toList());
     }
 
-    @Cacheable(value = "municipiosPorNombre", key = "#nombreDepartamento")
+    @Cacheable(value = "municipiosPorNombre", key = "#nombreDepartamento != null ? #nombreDepartamento.trim().toLowerCase() : ''")
     @Transactional(readOnly = true)
     public List<MunicipioDTO> obtenerMunicipiosPorNombreDepartamento(String nombreDepartamento) {
-        log.info("Consultando municipios en base de datos para depto nombre: {} (poblando caché)...", nombreDepartamento);
-        return municipioRepository.findByDepartamentoNombreIgnoreCaseOrderByNombreAsc(nombreDepartamento).stream()
+        if (nombreDepartamento == null || nombreDepartamento.isBlank()) {
+            return List.of();
+        }
+        String nombreLimpio = nombreDepartamento.trim();
+        log.info("Consultando municipios en base de datos para depto nombre: {} (poblando caché)...", nombreLimpio);
+        return municipioRepository.findByDepartamentoNombreIgnoreCaseOrderByNombreAsc(nombreLimpio).stream()
                 .map(this::mapMunicipioToDto)
                 .collect(Collectors.toList());
     }

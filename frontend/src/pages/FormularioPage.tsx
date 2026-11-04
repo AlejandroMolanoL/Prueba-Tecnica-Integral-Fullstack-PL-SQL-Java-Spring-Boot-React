@@ -59,21 +59,27 @@ export const FormularioPage: React.FC = () => {
   const [guardando, setGuardando] = useState(false);
   const [cargandoDatos, setCargandoDatos] = useState(false);
 
-  // 1. Cargar Departamentos
+  // 1. Cargar Departamentos al montar la página
   useEffect(() => {
-    const cargarDepartamentos = async () => {
-      setCargandoCatalogos(true);
-      try {
-        const deptos = await catalogoService.getDepartamentos();
-        setDepartamentos(deptos);
-      } catch (err: any) {
-        showToast('Error al cargar lista de departamentos: ' + err.message, 'error');
-      } finally {
-        setCargandoCatalogos(false);
-      }
+    let isMounted = true;
+    setCargandoCatalogos(true);
+    catalogoService.getDepartamentos()
+      .then((deptos) => {
+        if (isMounted) setDepartamentos(deptos);
+      })
+      .catch((err: any) => {
+        if (isMounted) {
+          showToast('Error al cargar lista de departamentos: ' + err.message, 'error');
+        }
+      })
+      .finally(() => {
+        if (isMounted) setCargandoCatalogos(false);
+      });
+
+    return () => {
+      isMounted = false;
     };
-    cargarDepartamentos();
-  }, [showToast]);
+  }, []);
 
   // 2. Cargar Municipios en cascada al cambiar Departamento
   useEffect(() => {
@@ -82,25 +88,46 @@ export const FormularioPage: React.FC = () => {
       return;
     }
 
-    const cargarMunicipios = async () => {
-      try {
-        const m = await catalogoService.getMunicipiosPorNombre(departamentoSeleccionado);
-        setMunicipios(m);
-      } catch (err: any) {
-        showToast('Error al cargar municipios para ' + departamentoSeleccionado, 'error');
-      }
+    // Si aún se están cargando los departamentos de referencia, esperamos a que estén listos
+    if (cargandoCatalogos && departamentos.length === 0) {
+      return;
+    }
+
+    let isMounted = true;
+    const deptoEncontrado = departamentos.find(
+      (d) => d.nombre.trim().toLowerCase() === departamentoSeleccionado.trim().toLowerCase()
+    );
+
+    const promesa = deptoEncontrado?.id
+      ? catalogoService.getMunicipiosPorDepartamento(deptoEncontrado.id)
+      : catalogoService.getMunicipiosPorNombre(departamentoSeleccionado);
+
+    promesa
+      .then((m) => {
+        if (isMounted) setMunicipios(m);
+      })
+      .catch((err: any) => {
+        if (isMounted) {
+          const msg = err.response?.data?.mensaje || err.message;
+          showToast(`Error al cargar municipios para ${departamentoSeleccionado}: ${msg}`, 'error');
+        }
+      });
+
+    return () => {
+      isMounted = false;
     };
-    cargarMunicipios();
-  }, [departamentoSeleccionado, showToast]);
+  }, [departamentoSeleccionado, departamentos, cargandoCatalogos]);
 
   // 3. Si es edición, cargar datos del comerciante existente
   useEffect(() => {
     if (!esEdicion || !idEdicion) return;
 
+    let isMounted = true;
     const cargarComerciante = async () => {
       setCargandoDatos(true);
       try {
         const c = await comercianteService.getById(Number(idEdicion));
+        if (!isMounted) return;
         setNombreRazonSocial(c.nombreRazonSocial);
         setDepartamentoSeleccionado(c.departamento);
         setMunicipioSeleccionado(c.municipio);
@@ -113,15 +140,20 @@ export const FormularioPage: React.FC = () => {
         setEstablecimientos(ests);
         setPoseeEstablecimientos(ests.length > 0);
       } catch (err: any) {
+        if (!isMounted) return;
         showToast('Error al cargar datos del comerciante: ' + (err.response?.data?.mensaje || err.message), 'error');
         navigate('/');
       } finally {
-        setCargandoDatos(false);
+        if (isMounted) setCargandoDatos(false);
       }
     };
 
     cargarComerciante();
-  }, [esEdicion, idEdicion, navigate, showToast]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [esEdicion, idEdicion]);
 
   // Cálculo en tiempo real de totales para el footer (Reto 14)
   const totalesCalculados = useMemo(() => {

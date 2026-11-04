@@ -30,6 +30,7 @@ spring:
     cache-names:
       - departamentos
       - municipios
+      - municipiosPorNombre
 
 # Configuración JWT (1 hora = 3600000 ms)
 security:
