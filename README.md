@@ -1,6 +1,8 @@
 # Prueba Técnica Integral Fullstack (PL/SQL - Java Spring Boot - React)
 ## Agremiación Nacional de Comercio | OL Software
 
+![alt text](frontend/public/screen.png)
+
 Solución completa y profesional desarrollada para la prueba técnica integral fullstack, estructurada rigurosamente en sus tres fases correspondientes:
 
 1. **`database/`** - Evaluación PL/SQL Fullstack (Oracle 11gR2 / 23ai Free)
