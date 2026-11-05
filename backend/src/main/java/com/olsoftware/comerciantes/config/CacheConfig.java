@@ -1,4 +1,4 @@
-git apackage com.olsoftware.comerciantes.config;
+package com.olsoftware.comerciantes.config;
 
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
@@ -12,7 +12,8 @@ public class CacheConfig {
     public CacheManager cacheManager() {
         ConcurrentMapCacheManager cacheManager = new ConcurrentMapCacheManager();
         // El constructor sin argumentos establece dynamic = true en Spring.
-        // Pre-creamos las cachés del catálogo para asegurar su disponibilidad inmediata.
+        // Pre-creamos las cachés del catálogo para asegurar su disponibilidad
+        // inmediata.
         cacheManager.getCache("departamentos");
         cacheManager.getCache("municipios");
         cacheManager.getCache("municipiosPorNombre");

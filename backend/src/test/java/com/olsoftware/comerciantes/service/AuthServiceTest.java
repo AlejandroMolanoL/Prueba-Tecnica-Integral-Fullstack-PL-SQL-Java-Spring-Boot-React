@@ -3,7 +3,6 @@ package com.olsoftware.comerciantes.service;
 import com.olsoftware.comerciantes.config.JwtTokenProvider;
 import com.olsoftware.comerciantes.dto.AuthRequest;
 import com.olsoftware.comerciantes.dto.AuthResponse;
-import com.olsoftware.comerciantes.exception.BusinessException;
 import com.olsoftware.comerciantes.model.Rol;
 import com.olsoftware.comerciantes.model.Usuario;
 import com.olsoftware.comerciantes.repository.UsuarioRepository;
@@ -20,8 +19,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)

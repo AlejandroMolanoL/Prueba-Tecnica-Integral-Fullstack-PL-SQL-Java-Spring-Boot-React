@@ -1,6 +1,5 @@
 package com.olsoftware.comerciantes.service;
 
-import com.olsoftware.comerciantes.dto.ComercianteCreateDTO;
 import com.olsoftware.comerciantes.dto.ComercianteDTO;
 import com.olsoftware.comerciantes.dto.PaginatedResponse;
 import com.olsoftware.comerciantes.exception.BusinessException;
